@@ -1,0 +1,210 @@
+# Just temporary files (these are auto-generated)
+.just-*
+
+# ==================================
+# Healthcare Specific
+# ==================================
+# PHI (Protected Health Information) - NEVER commit
+*_phi_*
+*_patient_data_*
+*_medical_records_*
+phi/
+patient_exports/
+
+# Test data that might contain real info
+seeds/*_production_*.sql
+seeds/*_real_*.sql
+
+# Compliance reports with sensitive info
+compliance_reports/
+audit_exports/
+hipaa_logs/
+
+# Anonymized data scripts (keep source controlled)
+!seeds/*_anonymized_*.sql
+!seeds/*_synthetic_*.sql
+
+# ==================================
+# Environment & Secrets
+# ==================================
+# Never commit credentials or environment-specific configs
+.env
+.env.*
+!.env.example
+*.conf
+!flyway.conf.example
+
+# Local environment overrides
+flyway.local.conf
+local.properties
+
+# Database connection strings with credentials
+database.properties
+db.properties
+
+# ==================================
+# Flyway Specific
+# ==================================
+# Flyway generates these files
+flyway.json
+*.log
+
+# Flyway history tracking (if using file-based)
+.flywayhistory
+
+# ==================================
+# Database Files & Dumps
+# ==================================
+# Database dumps and backups
+*.sql.gz
+*.sql.zip
+*.dump
+*.backup
+*.bak
+*.sqlite
+*.sqlite3
+*.db
+
+# Backup directories
+backups/
+dumps/
+exports/
+
+# PostgreSQL specific
+*.pgdump
+*.pg_dump
+
+# ==================================
+# Sensitive Data
+# ==================================
+# Test data with PII
+seeds/production_data/
+seeds/real_patient_data/
+seeds/*_sensitive.sql
+
+# Migration rollback files with production data
+rollback_data/
+
+# ==================================
+# IDE & Editors
+# ==================================
+# VSCode
+.vscode/
+*.code-workspace
+.history/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# JetBrains
+.idea/
+*.iml
+.idea_modules/
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+.*.sw?
+
+# Emacs
+*~
+\#*\#
+.\#*
+
+# ==================================
+# Operating System
+# ==================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+.directory
+.Trash-*
+
+# ==================================
+# Node.js (if using Node scripts)
+# ==================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+package-lock.json
+yarn.lock
+
+# ==================================
+# Python (if using Python scripts)
+# ==================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+env/
+.venv
+
+# ==================================
+# Logs & Temporary Files
+# ==================================
+# All log files
+*.log
+logs/
+*.out
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Migration test outputs
+test_results/
+migration_reports/
+
+# ==================================
+# Docker (if containerized)
+# ==================================
+.dockerignore
+docker-compose.override.yml
+.docker/
+
+# ==================================
+# Scripts Output
+# ==================================
+# Script-generated files
+scripts/output/
+scripts/*.out
+scripts/*.err
+
+# Migration validation reports
+vali
