@@ -1,5 +1,5 @@
 -- ================================================================
--- Migration: V014 - Create Patient Tables
+-- Migration: V015 - Create Patient Tables
 -- Description: Create patient tables matching DBT output schema
 --              Matches actual DBT models exactly
 -- ================================================================
@@ -53,6 +53,9 @@ CREATE TABLE IF NOT EXISTS platform.patients (
     -- Metadata
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    -- Optimistic locking
+    version INTEGER DEFAULT 1,
     
     CONSTRAINT uq_patients_code UNIQUE (code),
     CONSTRAINT fk_patients_current_facility FOREIGN KEY (current_facility_id) 
@@ -89,13 +92,6 @@ CREATE INDEX IF NOT EXISTS idx_patients_name ON platform.patients(LOWER(last_nam
 -- Additional useful indexes
 CREATE INDEX IF NOT EXISTS idx_patients_mongodb_id ON platform.patients(mongodb_patient_id) WHERE mongodb_patient_id IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_patients_created ON platform.patients(created_at DESC);
-
--- Triggers
-DROP TRIGGER IF EXISTS trg_updated_at_patients ON platform.patients;
-CREATE TRIGGER trg_updated_at_patients
-    BEFORE UPDATE ON platform.patients
-    FOR EACH ROW
-    EXECUTE FUNCTION public.update_updated_at_column();
 
 COMMENT ON TABLE platform.patients IS 'Patient demographic and current status information (DBT output schema)';
 COMMENT ON COLUMN platform.patients.code IS 'Unique patient identifier (e.g., P001)';
@@ -260,6 +256,9 @@ CREATE TABLE IF NOT EXISTS platform.patient_transfers (
     -- Metadata
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    -- Optimistic locking
+    version INTEGER DEFAULT 1,
     
     CONSTRAINT fk_patient_transfers_patient FOREIGN KEY (patient_id) 
         REFERENCES platform.patients(id) ON DELETE CASCADE,
@@ -296,12 +295,6 @@ CREATE INDEX IF NOT EXISTS idx_patient_transfers_from_doctor ON platform.patient
 CREATE INDEX IF NOT EXISTS idx_patient_transfers_to_doctor ON platform.patient_transfers(to_doctor_id);
 CREATE INDEX IF NOT EXISTS idx_patient_transfers_created ON platform.patient_transfers(created_at DESC);
 
-DROP TRIGGER IF EXISTS trg_updated_at_patient_transfers ON platform.patient_transfers;
-CREATE TRIGGER trg_updated_at_patient_transfers
-    BEFORE UPDATE ON platform.patient_transfers
-    FOR EACH ROW
-    EXECUTE FUNCTION public.update_updated_at_column();
-
 COMMENT ON TABLE platform.patient_transfers IS 'Patient transfers between facilities - schema ready for future implementation (DBT output schema)';
 COMMENT ON COLUMN platform.patient_transfers.transfer_type IS 'Transfer type: permanent, temporary, consultation, emergency';
 COMMENT ON COLUMN platform.patient_transfers.urgency_level IS 'Urgency: routine, urgent, emergency';
@@ -309,31 +302,23 @@ COMMENT ON COLUMN platform.patient_transfers.transport_required IS 'Transport me
 COMMENT ON COLUMN platform.patient_transfers.status IS 'Status: pending, accepted, rejected, in_transit, completed, cancelled';
 
 -- ----------------------------------------------------------------
+-- Enable RLS on patient tables (policies applied later)
+-- ----------------------------------------------------------------
+SELECT public.enable_rls('platform', 'patients');
+SELECT public.enable_rls('platform', 'patient_versions');
+SELECT public.enable_rls('platform', 'patient_transfers');
+
+-- ----------------------------------------------------------------
 -- Enable audit triggers on all patient tables
 -- ----------------------------------------------------------------
-DO $$
-BEGIN
-    PERFORM audit.enable_audit_trigger('platform', 'patients');
-EXCEPTION
-    WHEN OTHERS THEN
-        RAISE NOTICE 'Audit trigger on patients: %', SQLERRM;
-END;
-$$;
+SELECT audit.enable_audit_trigger('platform', 'patients');
+SELECT audit.enable_audit_trigger('platform', 'patient_versions');
+SELECT audit.enable_audit_trigger('platform', 'patient_transfers');
 
-DO $$
-BEGIN
-    PERFORM audit.enable_audit_trigger('platform', 'patient_versions');
-EXCEPTION
-    WHEN OTHERS THEN
-        RAISE NOTICE 'Audit trigger on patient_versions: %', SQLERRM;
-END;
-$$;
+-- ----------------------------------------------------------------
+-- Enable version triggers on patient tables
+-- ----------------------------------------------------------------
+SELECT public.enable_version_trigger('platform', 'patients');
+SELECT public.enable_version_trigger('platform', 'patient_transfers');
 
-DO $$
-BEGIN
-    PERFORM audit.enable_audit_trigger('platform', 'patient_transfers');
-EXCEPTION
-    WHEN OTHERS THEN
-        RAISE NOTICE 'Audit trigger on patient_transfers: %', SQLERRM;
-END;
-$$;
+-- Note: patient_versions is immutable, no update trigger needed

@@ -1,5 +1,5 @@
 -- ================================================================
--- Migration: V009 - Grant Permissions
+-- Migration: V010 - Grant Permissions
 -- Description: Grant appropriate permissions to each role
 --              Implements least-privilege access control
 -- ================================================================
@@ -31,7 +31,7 @@ BEGIN
     -- APP_READ ROLE - SELECT only
     -- ================================================================
     
-    -- Marts tables
+    -- Platform tables
     EXECUTE format('GRANT SELECT ON ALL TABLES IN SCHEMA platform TO app_read');
     EXECUTE format('ALTER DEFAULT PRIVILEGES IN SCHEMA platform GRANT SELECT ON TABLES TO app_read');
     
@@ -48,7 +48,7 @@ BEGIN
     -- APP_WRITE ROLE - INSERT, UPDATE (no DELETE)
     -- ================================================================
     
-    -- Marts tables
+    -- Platform tables
     EXECUTE format('GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA platform TO app_write');
     EXECUTE format('ALTER DEFAULT PRIVILEGES IN SCHEMA platform GRANT SELECT, INSERT, UPDATE ON TABLES TO app_write');
     

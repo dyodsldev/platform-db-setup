@@ -1,12 +1,12 @@
 -- ================================================================
--- Migration: V007 - Row Level Security Policies
+-- Migration: V008 - Row Level Security Policies
 -- Description: Define RLS policies for multi-tenant access control
 --              Applied AFTER DBT creates tables
 -- ================================================================
 
 -- ----------------------------------------------------------------
 -- Function: apply_rls_policies
--- Description: Create all RLS policies on marts tables
+-- Description: Create all RLS policies on platform tables
 --              Supports facility-based multi-tenancy
 -- ----------------------------------------------------------------
 CREATE OR REPLACE FUNCTION public.apply_rls_policies()
@@ -192,8 +192,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-COMMENT ON FUNCTION public.apply_rls_policies() IS 
-'Apply all Row Level Security policies to marts tables';
+COMMENT ON FUNCTION public.apply_rls_policies() IS 'Apply all Row Level Security policies to platform tables';
 
 -- ----------------------------------------------------------------
 -- Function: remove_rls_policies
@@ -208,7 +207,7 @@ BEGIN
     FOR policy_record IN
         SELECT schemaname, tablename, policyname
         FROM pg_policies
-        WHERE schemaname IN ('marts', 'audit')
+        WHERE schemaname IN ('platform', 'audit')
     LOOP
         EXECUTE format('DROP POLICY IF EXISTS %I ON %I.%I',
             policy_record.policyname,
@@ -227,8 +226,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-COMMENT ON FUNCTION public.remove_rls_policies() IS 
-'Remove all RLS policies (for testing/maintenance)';
+COMMENT ON FUNCTION public.remove_rls_policies() IS 'Remove all RLS policies (for testing/maintenance)';
 
 -- ----------------------------------------------------------------
 -- Helper function: Set current user context
@@ -241,8 +239,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-COMMENT ON FUNCTION public.set_current_user(UUID) IS 
-'Set current user context for RLS policies (call after authentication)';
+COMMENT ON FUNCTION public.set_current_user(UUID) IS 'Set current user context for RLS policies (call after authentication)';
 
 -- ================================================================
 -- NOTE: RLS policies will be applied AFTER DBT creates tables

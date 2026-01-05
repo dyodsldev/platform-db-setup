@@ -1,5 +1,5 @@
 -- ================================================================
--- Migration: V010 - Partitioning Setup
+-- Migration: V011 - Partitioning Setup
 -- Description: Partition management for large tables
 --              Enables automatic monthly partitioning
 --
@@ -102,11 +102,11 @@ BEGIN
             IF EXISTS (
                 SELECT 1 FROM pg_class 
                 WHERE relname = 'patient_versions' 
-                AND relnamespace = 'marts'::regnamespace
+                AND relnamespace = 'platform'::regnamespace
                 AND relkind = 'p'
             ) THEN
                 result_text := result_text || public.create_partition(
-                    'marts', 'patient_versions', 'valid_from', year_month
+                    'platform', 'patient_versions', 'valid_from', year_month
                 ) || E'\n';
             END IF;
         EXCEPTION

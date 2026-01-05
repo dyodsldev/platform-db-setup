@@ -1,5 +1,5 @@
 -- ================================================================
--- Migration: V008 - Database Roles
+-- Migration: V009 - Database Roles
 -- Description: Create PostgreSQL roles for application access
 --              Implements least-privilege principle
 -- ================================================================
@@ -16,7 +16,7 @@ BEGIN
     END IF;
 END $$;
 
-COMMENT ON ROLE app_read IS 'Read-only access to marts schema';
+COMMENT ON ROLE app_read IS 'Read-only access to platform schema';
 
 -- Read-write role
 DO $$
@@ -26,7 +26,7 @@ BEGIN
     END IF;
 END $$;
 
-COMMENT ON ROLE app_write IS 'Read-write access to marts schema (no DELETE)';
+COMMENT ON ROLE app_write IS 'Read-write access to platform schema (no DELETE)';
 
 -- Admin role
 DO $$
@@ -85,7 +85,7 @@ BEGIN
     END IF;
 END $$;
 
-COMMENT ON ROLE analyst_read IS 'Analysts - read-only access to marts and aggregated views';
+COMMENT ON ROLE analyst_read IS 'Analysts - read-only access to platform and aggregated views';
 
 -- ----------------------------------------------------------------
 -- Role Hierarchy
@@ -156,8 +156,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-COMMENT ON FUNCTION public.create_application_user(TEXT, TEXT, TEXT) IS 
-'Create application user with specified role';
+COMMENT ON FUNCTION public.create_application_user(TEXT, TEXT, TEXT) IS 'Create application user with specified role';
 
 -- ----------------------------------------------------------------
 -- NOTE: Actual permissions granted in V009__grants.sql

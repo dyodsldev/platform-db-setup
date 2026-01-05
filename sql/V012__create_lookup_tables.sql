@@ -1,5 +1,5 @@
 -- ================================================================
--- Migration: V011 - Create Lookup Tables
+-- Migration: V012 - Create Lookup Tables
 -- Description: Create all lookup/reference tables
 --              This replicates what DBT creates, but in pure SQL
 --              Enables fresh installs without DBT
